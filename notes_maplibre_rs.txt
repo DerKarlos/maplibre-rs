@@ -1,0 +1,65 @@
+cargo run -p maplibre-demo -- headed
+cargo doc --no-deps (only my code and) --open (show)
+
+Sollte es nicht  "maplibre-gl-rs" sein? Nein, wir verwenden nicht WebGL?
+
+
+
+This text is for: Issue #91
+Refactor the input module
+
+
+Firstly we should have the controls, alike maplibre-js/native, later we can extend/improve them.
+The controls of maplibre-js can be tested here:
+https://demotiles.maplibre.org/terrain-tiles/#17.52/47.27892/11.399455/33.6/85
+A nice demo with terrain and 3D buildings.  (No ADWS-kleys are used)
+
+1st-mousekey, arrow-keys:       shift=move=slide=pan the map 100 pixels
+2nd-mousekey, arrow-keys+shift: rotate the camera-viewangles: direction (15) and tilt=up/down (10 degrees)
+mousewheel,   plus=equal-key/minus-key:  zoom in/out 1 or 2 if shift is pressed
+
+1-fingerr-tab:  zoom in, double-tab: zoom out
+
+1-finger-touch: shift
+2-finger-touch: shift(move) + zoom(pinch) + rotate-direction(twist)
+2-finger-touch: rotate-up/down(move)   *)
+
+*) This mode gets only active if the 2-finger-move-up/down is used first! It blocks pinch and twist and shift-left/right.
+
+In https://github.com/maplibre/maplibre-gl-js/tree/main/src/ui/handler more may be found.
+
+-----
+
+A control may have quite a view stepps/functons to solve:
+A) Receive input events like Event::WindowEvent
+b) Manage input states like key_a_down or 2nd_mouse_key_down
+c) Consider different key layouts i.e for PC/Mac
+d) Pair input-pairs to axis, like up/down-arrow-keys to 0/+1/-1
+E) Relate events/state-values and axis-values to reactions like kamera moves. May be emapped by user-options/settings.
+f) Ramp axis values if neede i.e. for map slides by keys start slow and get faster
+G) Sum delta-values from different input types
+h) If aplayed, integrad acceleraton-values to speed-deltas and speed-values to position-deltas
+I) Integrate values like camera positions-delta to the new set-position
+j) Limit new set-values i.e. the max zoom
+K) Set the new values to i.e. the camera
+
+The actual code of maplibre-rs just has about this:
+   if key camera_translate.x += amount
+   camera.position += (self.camera_translate * dt);
+
+That's steps A,E,G,I and K. For step j there are issues: #73 #74 #161
+
+Not the time, a key is down is used, but the (repeated) event.
+https://github.com/maplibre/maplibre-gl-js/blob/main/src/ui/handler/keyboard.ts
+
+https://en.wikipedia.org/wiki/Reactive_programming  (Excel!?)
+
+
+------------
+
+How to split the controler code in source codes?
+One for each input type, reacton type?
+https://github.com/maplibre/maplibre-gl-js/tree/main/src/ui/handler may help there too.
+
+MJS: class Map extends Camera {
+

@@ -17,6 +17,7 @@
 - [Development Documents](./development-documents/index.md)
   - [Architecture](./development-documents/architecture.md)
   - [Design](./development-documents/design.md)
+  - [Rust modules](./development-documents/rust-moduls.md)
   - [Caching](./development-documents/caching.md)
   - [Stencil Masking](./development-documents/stencil-masking.md)
   - [Font Rendering](./development-documents/font-rendering.md)
@@ -27,5 +28,5 @@
 
 - [Appendix](./appendix/index.md)
   - [Link Collection](./appendix/link-collection.md)
-
+  - [Terms and Abbreviations](./appendix/terms-abbr.md)
 

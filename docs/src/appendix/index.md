@@ -47,5 +47,5 @@
 
 Streets can have unusual shaped like shown [here](https://www.google.de/maps/@48.1353883,11.5717232,19z) in Munich. OSM
 does not offer such data and therefore just renders an ordinary street contour like
-shown [here](https://www.openstreetmap.org/query?lat=48.13533&lon=11.57143).
+shown [here](https://www.openstreetmap.org/#map=19/48.13516/11.57160).
 Because the data is probably not available this is a very hard challenge.
