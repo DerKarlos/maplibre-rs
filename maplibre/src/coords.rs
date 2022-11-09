@@ -532,12 +532,12 @@ impl WorldCoords {
         let x = (lat_lon.longitude + 180.0) * (tile_size / 360.0);
 
         // Convert from degrees to radians
-        let lat_rad = (lat_lon.latitude * PI) / 180.0;
+        let lat_rad = (lat_lon.latitude * PI) / 180.0; //   +/- 90 Grad  wird zu  +/- Pi/2
 
-        // get y value
-        let merc_n = f64::ln(f64::tan((PI / 4.0) + (lat_rad / 2.0)));
+        // get y value  // Da x oben gestrreckt wird, machen wir es mit y auch, damit die Winkel stimmen. Aber leider nicht die Flächen!
+        let merc_n = f64::ln(f64::tan((PI / 4.0) + (lat_rad / 2.0)));  //  +/- Pi/2 / 2 = +/- Pi/4   +Pi/4 = 0..Pi/2   davon tan: Unendlich!  Nicht ganz zum Pol: 0..2
         let y = (tile_size / 2.0) - (tile_size * merc_n / (2.0 * PI));
-
+        //  y = (1 - merc_n / PI) / 2.0 * tile_size;   ---  0..Pi/2 / Pi
         WorldCoords { x, y }
     }
 
