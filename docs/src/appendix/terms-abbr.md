@@ -12,6 +12,7 @@ This and the other mapilary repositories use some terms and abbreviations with d
 | roll           | rotate the camera around the view axis (not used in maplibre)              |
 | pinch          | two touched fingers come closer or more distanced, used for zoom           |
 | pan/panning    | the map moves/slides/shifts/pans in x/y direction (west-east/nord-south)   |
+| source         | Mainly it means "web-soruce of vector tiles". Use "source-code" or "io-input-source", if you mean one of thies |
 
 
 ## Abbreviations
