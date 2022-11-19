@@ -21,6 +21,7 @@ This and the other mapilary repositories use some terms and abbreviations with d
 |----------------|:----------------------------------------------------------------------------|
 |MRS             | Maplibre RS, this repository                                                |
 |MJS             | Maplibre GL JS, the Javascript version / repository                         |
+|mvt             | Mapbox/Mapliebre Vector Tile(s) standard                                    |
 
 ## Todo / To place somewere in the Book
 

@@ -3,7 +3,7 @@ cargo doc --no-deps (only my code and) --open (show)
 
 Sollte es nicht  "maplibre-gl-rs" sein? Nein, wir verwenden nicht WebGL?
 
-
+There is a matrix chat: https://matrix.to/#/#maplibre:matrix.org
 
 This text is for: Issue #91
 Refactor the input module
@@ -55,11 +55,24 @@ https://github.com/maplibre/maplibre-gl-js/blob/main/src/ui/handler/keyboard.ts
 https://en.wikipedia.org/wiki/Reactive_programming  (Excel!?)
 
 
-------------
 
-How to split the controler code in source codes?
-One for each input type, reacton type?
-https://github.com/maplibre/maplibre-gl-js/tree/main/src/ui/handler may help there too.
+iiiiiiiiiiiiiiiiiii
+Infos from other projects
 
-MJS: class Map extends Camera {
+* Bessere Vektor-Tiles und einfacher als MapBox: https://github.com/protomaps/protomaps.js
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Weg der Tile-Daten vom Server zum Bildschirm
+
+Called from data.rs fn parse_tile or tessellate_tile:
+
+TileRequest
+
+tile_pipelineS.rs fn ParseTile.Processable # geozero::mvt::Tile::decode(data
+geozero
+mvt = Mapbox/Mapliebre Vector Tile(s)
+Tile::decode gets [u8] and returns complex structure?
 

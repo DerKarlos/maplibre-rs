@@ -43,15 +43,16 @@ stages/..  Tile load process stages manager ??
 * request_stage.rs: RequestStage(new run request_tile request_tiles_in_view) + pub fn schedule
 * populate_tile_store_stage.rs: PopulateTileStore(new run)
 
-io/..    All about tile loading? And interpreting??
+io/..    All about tile loading
 * mod.rs:  Root for io module and "class" TileRequest
 * scheduler.rs:   Async/await scheduler. Can schedule a task from a future factory and a shared state.
 * apc.rs:  SchedulerAsyncProcedureCall(new AsyncProcedureCall receive schedule)
 * pipeline.rs: Processes events which happen during the pipeline execution
-* geometry_index.rs: A quad tree storing the currently loaded tiles.
 * source_client.rs: Gives access to the HTTP client which can be of multiple types
+* geometry_index.rs: A quad tree storing the currently loaded tiles.
 * static_tile_fetcher.rs: Load PBF files -?- which were statically embedded in the `build.rs`
-* tile_pipelines.rs: ParseTile/TessellateLayer (process)
+* tile_pipeline**s**.rs: ParseTile/TessellateLayer (process) -- calling tile load, decode=ParseTile and the renderer?
+A shape (and a 3D Building) gets converted to triangles and send to the GPU by other modules. Todo karlos: split renderer-core and mesh creation
 * tile_repository.rs: Stores multiple StoredLayer - TileRepository(new clear put_tessellated_layer iter_tessellated_layers_at create_tile needs_fetching success fail retain_missing_layer_names is_layers_missing)
 * transferables.rs: DefaultTileTessellated(new coords) DefaultUnavailableLayer(new to_stored_layer) DefaultTessellatedLayer(new to_stored_layer)
 
