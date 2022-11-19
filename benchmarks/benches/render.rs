@@ -1,54 +1,28 @@
-use std::collections::HashSet;
-
 use criterion::{criterion_group, criterion_main, Criterion};
 use maplibre::{
     coords::{WorldTileCoords, ZoomLevel},
     error::Error,
-    headless::{utils::HeadlessPipelineProcessor, HeadlessEnvironment, HeadlessMapWindowConfig},
-    io::{
-        apc::SchedulerAsyncProcedureCall,
-        pipeline::{PipelineContext, Processable},
-        source_client::HttpSourceClient,
-        tile_pipelines::build_vector_tile_pipeline,
-        TileRequest,
-    },
-    platform::{http_client::ReqwestHttpClient, run_multithreaded, scheduler::TokioScheduler},
-    render::settings::{RendererSettings, TextureFormat},
-    window::WindowSize,
-    MapBuilder,
+    headless::{create_headless_renderer, map::HeadlessMap},
+    platform::run_multithreaded,
+    style::Style,
 };
 
 fn headless_render(c: &mut Criterion) {
     c.bench_function("headless_render", |b| {
-        let mut map = run_multithreaded(async {
-            let client = ReqwestHttpClient::new(None);
+        let (mut map, tile) = run_multithreaded(async {
+            let (kernel, renderer) = create_headless_renderer(1000, None).await;
+            let style = Style::default();
+            let map = HeadlessMap::new(style, renderer, kernel).unwrap();
 
-            let mut map = MapBuilder::<
-                HeadlessEnvironment<_, _, _, SchedulerAsyncProcedureCall<_, _>>,
-            >::new()
-            .with_map_window_config(HeadlessMapWindowConfig {
-                size: WindowSize::new(1000, 1000).unwrap(),
-            })
-            .with_http_client(client.clone())
-            .with_apc(SchedulerAsyncProcedureCall::new(
-                client,
-                TokioScheduler::new(),
-            ))
-            .with_scheduler(TokioScheduler::new())
-            .with_renderer_settings(RendererSettings {
-                texture_format: TextureFormat::Rgba8UnormSrgb,
-                ..RendererSettings::default()
-            })
-            .build()
-            .initialize_headless()
-            .await;
-
-            map.map_schedule
-                .fetch_process(&WorldTileCoords::from((0, 0, ZoomLevel::default())))
+            let tile = map
+                .fetch_tile(
+                    WorldTileCoords::from((0, 0, ZoomLevel::default())),
+                    &["water"],
+                )
                 .await
                 .expect("Failed to fetch and process!");
 
-            map
+            (map, tile)
         });
 
         b.to_async(
@@ -58,7 +32,7 @@ fn headless_render(c: &mut Criterion) {
                 .unwrap(),
         )
         .iter(|| {
-            match map.map_schedule_mut().update_and_redraw() {
+            match map.render_tile(tile.clone()) {
                 Ok(_) => {}
                 Err(Error::Render(e)) => {
                     eprintln!("{}", e);

@@ -7,7 +7,7 @@ use crate::error::Error;
 /// Async/await scheduler.
 /// Can schedule a task from a future factory and a shared state.
 pub trait Scheduler: 'static {
-    #[cfg(not(feature = "no-thread-safe-futures"))]
+    #[cfg(feature = "thread-safe-futures")]
     fn schedule<T>(
         &self,
         future_factory: impl (FnOnce() -> T) + Send + 'static,
@@ -15,7 +15,7 @@ pub trait Scheduler: 'static {
     where
         T: Future<Output = ()> + Send + 'static;
 
-    #[cfg(feature = "no-thread-safe-futures")]
+    #[cfg(not(feature = "thread-safe-futures"))]
     fn schedule<T>(
         &self,
         future_factory: impl (FnOnce() -> T) + Send + 'static,
@@ -27,10 +27,10 @@ pub trait Scheduler: 'static {
 pub struct NopScheduler;
 
 impl Scheduler for NopScheduler {
-    fn schedule<T>(&self, future_factory: impl FnOnce() -> T + Send + 'static) -> Result<(), Error>
+    fn schedule<T>(&self, _future_factory: impl FnOnce() -> T + Send + 'static) -> Result<(), Error>
     where
         T: Future<Output = ()> + 'static,
     {
-        Err(Error::Schedule)
+        Err(Error::Scheduler)
     }
 }

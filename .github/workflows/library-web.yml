@@ -26,24 +26,23 @@ jobs:
     name: Build
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
-      - uses: extractions/setup-just@v1
-      - name: Install nightly toolchain
-        shell: bash
-        run: |
-          just nightly-toolchain
-          just nightly-targets wasm32-unknown-unknown
+      - uses: actions/checkout@v3
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          nightly: true
+          targets: wasm32-unknown-unknown
       - name: Install rust sources (build-std)
         if: inputs.multithreaded
         shell: bash
         run: |
           just nightly-install-src
       - name: Install wasm-bindgen
-        shell: bash
-        run: |
-          # Install wasm-bindgen with test runner
-          cargo install wasm-bindgen-cli # We want the latest version, as Cargo uses the latest version of wasm-bindgen
-      - uses: Swatinem/rust-cache@v1
+        uses: ./.github/actions/cargo-install
+        # Install wasm-bindgen with test runner
+        # We want the latest version, as Cargo uses the latest version of wasm-bindgen
+        with:
+          name: wasm-bindgen-cli
       - name: Build lib
         shell: bash
         run: just web-lib build --release ${{ inputs.webgl && '--webgl' || '' }} ${{ inputs.multithreaded && '--multithreaded' || '' }}
@@ -56,7 +55,7 @@ jobs:
       - name: Test
         shell: bash
         run: just web-test "web-webgl"
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.name }}
           path: web/demo/dist/
@@ -67,8 +66,8 @@ jobs:
     name: Deploy
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v2
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.name }}
           path: demo

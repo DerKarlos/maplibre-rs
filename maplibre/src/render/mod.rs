@@ -32,7 +32,6 @@ use crate::{
         tile_view_pattern::{TileInView, TileShape, TileViewPattern},
     },
     tessellation::IndexDataType,
-    HeadedMapWindow, MapWindow,
 };
 
 pub mod graph;
@@ -49,19 +48,24 @@ mod tile_pipeline;
 mod tile_view_pattern;
 
 // Public API
+pub mod builder;
 pub mod camera;
+pub mod error;
 pub mod eventually;
 pub mod settings;
 
 pub use shaders::ShaderVertex;
 pub use stages::register_default_render_stages;
 
-use crate::render::{
-    graph::{EmptyNode, RenderGraph, RenderGraphError},
-    main_pass::{MainPassDriverNode, MainPassNode},
+use crate::{
+    render::{
+        graph::{EmptyNode, RenderGraph, RenderGraphError},
+        main_pass::{MainPassDriverNode, MainPassNode},
+    },
+    window::{HeadedMapWindow, MapWindow},
 };
 
-pub const INDEX_FORMAT: wgpu::IndexFormat = wgpu::IndexFormat::Uint32; // Must match IndexDataType
+const INDEX_FORMAT: wgpu::IndexFormat = wgpu::IndexFormat::Uint32; // Must match IndexDataType
 
 pub struct RenderState {
     render_target: Eventually<TextureView>,
@@ -260,11 +264,8 @@ impl Renderer {
         #[cfg(target_arch = "wasm32")]
         let trace_path = None;
 
-        // Maybe get features and limits based on what is supported by the adapter/backend
-        let mut features = wgpu::Features::empty();
-        let mut limits = settings.limits.clone();
-
-        features = adapter.features() | wgpu::Features::TEXTURE_ADAPTER_SPECIFIC_FORMAT_FEATURES;
+        let mut features =
+            adapter.features() | wgpu::Features::TEXTURE_ADAPTER_SPECIFIC_FORMAT_FEATURES;
         if adapter_info.device_type == wgpu::DeviceType::DiscreteGpu {
             // `MAPPABLE_PRIMARY_BUFFERS` can have a significant, negative performance impact for
             // discrete GPUs due to having to transfer data across the PCI-E bus and so it
@@ -272,7 +273,7 @@ impl Renderer {
             // integrated GPUs.
             features -= wgpu::Features::MAPPABLE_PRIMARY_BUFFERS;
         }
-        limits = adapter.limits();
+        let mut limits = adapter.limits();
 
         // Enforce the disabled features
         if let Some(disabled_features) = settings.disabled_features {
@@ -408,7 +409,7 @@ impl Renderer {
 
 #[cfg(test)]
 mod tests {
-    use crate::{MapWindow, MapWindowConfig, WindowSize};
+    use crate::window::{MapWindow, MapWindowConfig, WindowSize};
 
     pub struct HeadlessMapWindowConfig {
         size: WindowSize,
@@ -437,9 +438,9 @@ mod tests {
     async fn test_render() {
         use log::LevelFilter;
 
-        use crate::{
-            render::{graph::RenderGraph, graph_runner::RenderGraphRunner, resource::Surface},
-            RenderState, RendererSettings,
+        use crate::render::{
+            graph::RenderGraph, graph_runner::RenderGraphRunner, resource::Surface, RenderState,
+            RendererSettings,
         };
 
         let _ = env_logger::builder()

@@ -3,10 +3,11 @@
 
 use std::{mem::size_of, sync::Arc};
 
+use wgpu::CompositeAlphaMode;
+
 use crate::{
     render::{eventually::HasChanged, resource::texture::TextureView, settings::RendererSettings},
-    window::HeadedMapWindow,
-    MapWindow, WindowSize,
+    window::{HeadedMapWindow, MapWindow, WindowSize},
 };
 
 pub struct BufferDimensions {
@@ -51,7 +52,7 @@ impl WindowHead {
     where
         MW: MapWindow + HeadedMapWindow,
     {
-        self.surface = unsafe { instance.create_surface(window.inner()) };
+        self.surface = unsafe { instance.create_surface(window.raw()) };
     }
     pub fn surface(&self) -> &wgpu::Surface {
         &self.surface
@@ -133,6 +134,7 @@ impl Surface {
     {
         let size = window.size();
         let surface_config = wgpu::SurfaceConfiguration {
+            alpha_mode: CompositeAlphaMode::Auto,
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
             format: settings.texture_format,
             width: size.width(),
@@ -141,7 +143,7 @@ impl Surface {
             present_mode: wgpu::PresentMode::Fifo, // VSync
         };
 
-        let surface = unsafe { instance.create_surface(window.inner()) };
+        let surface = unsafe { instance.create_surface(window.raw()) };
 
         Self {
             size,
